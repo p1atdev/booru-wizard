@@ -30,13 +30,49 @@ Deno.test("get post with limit", async () => {
 Deno.test("get post with rating", async () => {
     const client = new BooruClient()
 
-    const cases = [Rating.General, Rating.Safe, Rating.Questionable, Rating.Explicit]
+    const cases = [
+        {
+            value: "general",
+            expect: "g",
+        },
+        {
+            value: "safe",
+            expect: "s",
+        },
+        {
+            value: "questionable",
+            expect: "q",
+        },
+        {
+            value: "explicit",
+            expect: "e",
+        },
+        {
+            value: "g",
+            expect: "g",
+        },
+        {
+            value: "s",
+            expect: "s",
+        },
+        {
+            value: "q",
+            expect: "q",
+        },
+        {
+            value: "e",
+            expect: "e",
+        },
+    ] satisfies {
+        value: Rating
+        expect: string
+    }[]
 
     for await (const rating of cases) {
         const posts = await client.getPosts(
             {
                 optional: {
-                    rating,
+                    rating: rating.value,
                 },
             },
             {
@@ -44,7 +80,7 @@ Deno.test("get post with rating", async () => {
             }
         )
         assertExists(posts)
-        posts.forEach((post) => assertEquals(post.rating, rating))
+        posts.forEach((post) => assertEquals(post.rating, rating.expect))
     }
 })
 
