@@ -1,6 +1,7 @@
 import { BooruClient } from "./client.ts"
 import { SearchTagOptions, Post } from "./types/mod.ts"
 import { downloadAndSaveImage, fixTagFormat, saveTxtFile } from "./utils.ts"
+import { tty, colors } from "./deps.ts"
 
 export interface SearchOptions {
     tags: SearchTagOptions
@@ -17,23 +18,28 @@ export interface SaveTagsOptions {
 }
 
 export const getImageData = async (client: BooruClient, options: SearchOptions) => {
-    const count = (options.limit % 200) + 1
-
     const images: Post[] = []
 
-    for (let i = 0; i < count; i++) {
+    let page = 1
+    while (images.length < options.limit) {
         const posts = await client.getPosts(options.tags, {
             limit: 200,
-            page: i + 1,
+            page: page,
         })
 
-        posts.forEach((post) => images.push(post))
+        if (posts.length === 0) {
+            break
+        }
+
+        posts.filter((post) => post.file_url !== undefined).forEach((post) => images.push(post))
+
+        page += 1
     }
 
     return images.slice(0, options.limit)
 }
 
-export const downloadImages = async (images: Post[], outputPath: string) => {
+export const downloadImages = async (images: Post[], outputPath: string, batch: number) => {
     // check output path exists
     try {
         await Deno.stat(outputPath)
@@ -41,13 +47,36 @@ export const downloadImages = async (images: Post[], outputPath: string) => {
         await Deno.mkdir(outputPath, { recursive: true })
     }
 
-    for (const image of images) {
-        const ext = image.file_ext
-        const id = image.id
-        const path = `${outputPath}/${id}.${ext}`
+    const batches = Math.ceil(images.length / batch)
+    const tasks: Promise<void[]>[] = []
 
-        await downloadAndSaveImage(image.file_url, path)
+    for (let i = 0; i < batches; i++) {
+        const batchImages = (() => {
+            if (i === batches - 1) {
+                return images.slice(i * batch)
+            } else {
+                return images.slice(i * batch, (i + 1) * batch)
+            }
+        })()
+
+        tasks.push(
+            Promise.all(
+                batchImages.map(async (image) => {
+                    const ext = image.file_ext
+                    const id = image.id
+                    const path = `${outputPath}/${id}.${ext}`
+
+                    // console.log(image)
+
+                    await downloadAndSaveImage(image.file_url, path)
+
+                    tty.eraseLine.cursorMove(-1000, 0).text(`${colors.blue.bold("[INFO]")} Downloaded: ${id}.${ext}`)
+                })
+            )
+        )
     }
+
+    await Promise.all(tasks)
 }
 
 export const saveTags = async (images: Post[], outputPath: string, options: SaveTagsOptions) => {

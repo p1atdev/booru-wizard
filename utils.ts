@@ -1,4 +1,5 @@
-import { writeAll } from "./deps.ts"
+import { writeAll, tty, colors } from "./deps.ts"
+import { log } from "./log.ts"
 
 export const downloadAndSaveImage = async (url: string, path: string) => {
     // if already exists, skip
@@ -6,10 +7,17 @@ export const downloadAndSaveImage = async (url: string, path: string) => {
         await Deno.stat(path)
         return
     } catch {
+        //
+    }
+
+    try {
         const res = await fetch(url)
         const buffer = await res.arrayBuffer()
         const file = await Deno.open(path, { create: true, write: true })
         await writeAll(file, new Uint8Array(buffer))
+    } catch (error) {
+        tty.eraseLine.cursorMove(-1000, 0).text("")
+        log.error(`Failed to download image: ${url}, ${error} `)
     }
 }
 
@@ -19,11 +27,18 @@ export const saveTxtFile = async (content: string, path: string) => {
         await Deno.stat(path)
         return
     } catch {
+        //
+    }
+
+    try {
         const encoder = new TextEncoder()
         const data = encoder.encode(content)
 
         const file = await Deno.open(path, { create: true, write: true })
         await writeAll(file, data)
+    } catch {
+        tty.eraseLine.cursorMove(-1000, 0).text("")
+        log.error(`Failed to save txt file: ${path}`)
     }
 }
 
