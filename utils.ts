@@ -9,15 +9,17 @@ export const downloadAndSaveImage = async (url: string, path: string) => {
     } catch {
         //
     }
-
-    try {
-        const res = await fetch(url)
-        const buffer = await res.arrayBuffer()
-        const file = await Deno.open(path, { create: true, write: true })
-        await writeAll(file, new Uint8Array(buffer))
-    } catch (error) {
-        tty.eraseLine.cursorMove(-1000, 0).text("")
-        log.error(`Failed to download image: ${url}, ${error} `)
+    while (true) {
+        try {
+            const res = await fetch(url)
+            const buffer = await res.arrayBuffer()
+            const file = await Deno.open(path, { create: true, write: true })
+            await writeAll(file, new Uint8Array(buffer))
+            break
+        } catch (_error) {
+            log.error(`Failed to download image: ${url}, wait for 5 seconds... `)
+            await new Promise((resolve) => setTimeout(resolve, 5000))
+        }
     }
 }
 
@@ -37,7 +39,6 @@ export const saveTxtFile = async (content: string, path: string) => {
         const file = await Deno.open(path, { create: true, write: true })
         await writeAll(file, data)
     } catch {
-        tty.eraseLine.cursorMove(-1000, 0).text("")
         log.error(`Failed to save txt file: ${path}`)
     }
 }

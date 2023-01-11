@@ -6,7 +6,7 @@ import { Rating, Filetype, Post } from "./types/mod.ts"
 
 await new Command()
     .name("booru-wizard")
-    .version("0.1.1")
+    .version("0.1.2")
     .description("Booru Images Downloader")
     .globalOption("--debug", "Debug mode", {
         hidden: true,
@@ -19,8 +19,8 @@ await new Command()
     .option("-o, --output <path:string>", "Output path.", {
         default: "./output",
     })
-    .option("-b, --batch <number:number>", "The number of images to download at once. Default is 1.", {
-        default: 1,
+    .option("-b, --batch <number:number>", "The number of images to download at once. Default is 4.", {
+        default: 4,
     })
     .option("-l, --limit <number:number>", "The number of images to download. Default is 200", {
         default: 200,
@@ -90,7 +90,7 @@ await new Command()
             query
         ) => {
             log.info("Started")
-            log.info("Query:")
+            log.info("Query:", query)
             log.info("Limit:", limit)
             log.info("Output path:", output)
             if (tags) {
@@ -174,7 +174,6 @@ await new Command()
 
             await Promise.all(tasks)
 
-            tty.eraseLine.cursorMove(-1000, 0).text("")
             log.success("Finished")
         }
     )

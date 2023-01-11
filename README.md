@@ -32,7 +32,7 @@ deno task build
 > ./booru --help
 
   Usage:   booru-wizard
-  Version: 0.1.1
+  Version: 0.1.2
 
   Description:
 
@@ -60,7 +60,7 @@ deno task build
     -h, --help                  - Show this help.
     --host          <host>      - Host URL.                                                (Default: "https://danbooru.donmai.us")
     -o, --output    <path>      - Output path.                                             (Default: "./output")
-    -b, --batch     <number>    - The number of images to download at once. Default is 1.  (Default: 1)
+    -b, --batch     <number>    - The number of images to download at once. Default is 4.  (Default: 4)
     -l, --limit     <number>    - The number of images to download. Default is 200         (Default: 200)
     -s, --score     <score>     - Filtering with score of images. e.g. "100", ">20", "<10", "100...200"
     -r, --rating    <rating>    - Rating of images. general/safe/questionable/explicit     (Default: [ "general", "safe", "questionable", "explicit" ])      
