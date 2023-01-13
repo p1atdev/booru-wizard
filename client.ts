@@ -91,7 +91,7 @@ export class BooruClient {
 
         Object.entries(params).forEach(([key, value]) => {
             if (value !== undefined) {
-                if (key === "page") {
+                if (key === "page" && host.apiType === "gelbooru") {
                     url.searchParams.set("pid", ((parseInt(value.toString()) - 1) * pageLimit).toString())
                     return
                 }

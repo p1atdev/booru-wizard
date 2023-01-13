@@ -8,10 +8,8 @@ const UserAgent =
 export const downloadAndSaveImage = async (url: string, path: string) => {
     // if already exists, skip
     try {
-        const file = await Deno.stat(path)
-        if (file.isFile) {
-            return
-        }
+        await Deno.stat(path)
+        return
     } catch {
         // continue
     }
@@ -39,12 +37,10 @@ export const downloadAndSaveImage = async (url: string, path: string) => {
 export const saveTxtFile = async (content: string, path: string) => {
     // if already exists, skip
     try {
-        const file = await Deno.stat(path)
-        if (file.isFile) {
-            return
-        }
+        await Deno.stat(path)
+        return
     } catch {
-        //
+        // continue
     }
 
     try {

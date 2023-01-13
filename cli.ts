@@ -126,6 +126,8 @@ await new Command()
                 return
             }
 
+            const outputPath = await Deno.realPath(output)
+
             const client = new BooruClient({
                 host: host,
                 auth:
@@ -152,7 +154,7 @@ await new Command()
             log.success("Found", images.length, "images")
 
             const tasks = [
-                downloadImages(images, output, batch).then(() => {
+                downloadImages(images, outputPath, batch).then(() => {
                     tty.eraseLine.cursorMove(-1000, 0).text("")
                     log.success("Images downloaded")
                 }),
@@ -168,7 +170,7 @@ await new Command()
                     exclude,
                 }
                 tasks.push(
-                    saveTags(images, output, saveTagsOptions).then(() => {
+                    saveTags(images, outputPath, saveTagsOptions).then(() => {
                         tty.eraseLine.cursorMove(-1000, 0).text("")
                         log.success("Tags saved")
                     })
