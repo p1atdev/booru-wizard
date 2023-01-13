@@ -113,3 +113,9 @@ deno task build
 ```bash
 ./booru download --host https://testbooru.donmai.us -o ./test
 ```
+
+- Gelbooru
+
+```bash
+./booru download --host "https://gelbooru.com" --no-filetype -l 100 -t -o ./gel --batch 100
+```
