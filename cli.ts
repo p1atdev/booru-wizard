@@ -27,12 +27,14 @@ await new Command()
     })
     .option("-s, --score <score:string>", 'Filtering with score of images. e.g. "100", ">20", "<10", "100...200"')
     .option("-r, --rating <rating:string>", "Rating of images. general/safe/questionable/explicit", {
-        default: ["general", "safe", "questionable", "explicit"],
         collect: true,
     })
     .option("-f, --filetype <filetype:string>", "Filetype to download. e.g. png/jpg/webp/mp4... etc ", {
-        collect: true,
         default: ["jpg", "png", "webp"],
+        collect: true,
+    })
+    .option("--no-filetype [boolean:boolean]", "Not to use filetype filtering", {
+        default: false,
     })
     .option("-t, --tags [tags:boolean]", "Save tags.", {
         default: false,
@@ -75,6 +77,7 @@ await new Command()
                 score,
                 rating,
                 filetype,
+                noFiletype,
                 tags,
                 character,
                 copyright,
@@ -139,8 +142,8 @@ await new Command()
                     general: query,
                     optional: {
                         score,
-                        rating: rating as Rating[],
-                        filetype: filetype as Filetype[],
+                        rating: rating ? rating.map((r) => r as Rating) : undefined,
+                        filetype: noFiletype ? undefined : filetype ? filetype.map((f) => f as Filetype) : undefined,
                     },
                 },
                 limit,

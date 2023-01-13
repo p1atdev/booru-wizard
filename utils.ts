@@ -1,6 +1,10 @@
 import { writeAll, tty, colors } from "./deps.ts"
 import { log } from "./log.ts"
 
+// fake user agent
+const UserAgent =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36"
+
 export const downloadAndSaveImage = async (url: string, path: string) => {
     // if already exists, skip
     try {
@@ -11,7 +15,13 @@ export const downloadAndSaveImage = async (url: string, path: string) => {
     }
     while (true) {
         try {
-            const res = await fetch(url)
+            const res = await fetch(url, {
+                headers: {
+                    "User-Agent": UserAgent,
+                    referer: new URL(url).origin,
+                    Cookie: "three-dee-booru~=aaaaa",
+                },
+            })
             const buffer = await res.arrayBuffer()
             const file = await Deno.open(path, { create: true, write: true })
             await writeAll(file, new Uint8Array(buffer))

@@ -18,6 +18,8 @@ export interface SaveTagsOptions {
     exclude?: string
 }
 
+const pageLimit = 100
+
 export const getImageData = async (client: BooruClient, options: SearchOptions) => {
     const images: Post[] = []
 
@@ -25,7 +27,7 @@ export const getImageData = async (client: BooruClient, options: SearchOptions) 
     while (images.length < options.limit) {
         const posts = await client
             .getPosts(options.tags, {
-                limit: 100,
+                limit: pageLimit,
                 page: page,
             })
             .then((res) => {
@@ -76,7 +78,7 @@ export const downloadImages = async (images: Post[], outputPath: string, batch: 
         tasks.push(
             (async () => {
                 for (const image of batchImages) {
-                    const ext = image.file_ext
+                    const ext = image.file_url.split(".").pop()!
                     const id = image.id
                     const path = `${outputPath}/${id}.${ext}`
 
