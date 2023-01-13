@@ -8,20 +8,23 @@ const UserAgent =
 export const downloadAndSaveImage = async (url: string, path: string) => {
     // if already exists, skip
     try {
-        await Deno.stat(path)
-        return
+        const file = await Deno.stat(path)
+        if (file.isFile) {
+            return
+        }
     } catch {
-        //
+        // continue
     }
+
     while (true) {
         try {
             const res = await fetch(url, {
                 headers: {
                     "User-Agent": UserAgent,
                     referer: new URL(url).origin,
-                    Cookie: "three-dee-booru~=aaaaa",
                 },
             })
+            // console.log("res", res)
             const buffer = await res.arrayBuffer()
             const file = await Deno.open(path, { create: true, write: true })
             await writeAll(file, new Uint8Array(buffer))
@@ -36,8 +39,10 @@ export const downloadAndSaveImage = async (url: string, path: string) => {
 export const saveTxtFile = async (content: string, path: string) => {
     // if already exists, skip
     try {
-        await Deno.stat(path)
-        return
+        const file = await Deno.stat(path)
+        if (file.isFile) {
+            return
+        }
     } catch {
         //
     }

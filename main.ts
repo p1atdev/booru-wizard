@@ -66,12 +66,14 @@ export const downloadImages = async (images: Post[], outputPath: string, batch: 
 
     const tasks: Promise<void>[] = []
 
+    const batchCount = Math.ceil(images.length / batch)
+
     for (let i = 0; i < batch; i++) {
         const batchImages = (() => {
             if (i === batch - 1) {
-                return images.slice(i * batch)
+                return images.slice(i * batchCount)
             } else {
-                return images.slice(i * batch, (i + 1) * batch)
+                return images.slice(i * batchCount, (i + 1) * batchCount)
             }
         })()
 
@@ -83,8 +85,6 @@ export const downloadImages = async (images: Post[], outputPath: string, batch: 
                     const path = `${outputPath}/${id}.${ext}`
 
                     tty.eraseLine.cursorMove(-1000, 0).text(`${colors.blue.bold("[INFO]")} Downloading: ${id}.${ext}`)
-
-                    // log.info(`Downloading: ${id}.${ext}`)
 
                     await downloadAndSaveImage(image.file_url, path)
                 }
