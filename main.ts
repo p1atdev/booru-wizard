@@ -132,11 +132,19 @@ export const saveTags = async (images: Post[], outputPath: string, options: Save
 
         const tagText = (() => {
             if (options.exclude) {
-                const exclude = options.exclude.split(",").map((tag) => tag.trim())
+                const exclude = options.exclude
+                    .split(",")
+                    .map((tag) => tag.trim())
+                    .map((tag) => tag.replaceAll(" ", "_"))
 
-                return tags.filter((tag) => !exclude.includes(tag)).join(" ")
+                return tags
+                    .join(" ")
+                    .split(" ")
+                    .filter((tag) => !exclude.includes(tag))
+                    .filter((tag) => tag !== "")
+                    .join(" ")
             } else {
-                return tags.join(" ")
+                return tags.filter((tag) => tag !== "").join(" ")
             }
         })()
 
