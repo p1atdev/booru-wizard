@@ -71,6 +71,9 @@ export class GelbooruScraper implements ScraperProtocol {
         }
 
         const json = await res.json()
+
+        console.log(json)
+
         const posts = (() => {
             // filter with filetype
             if (tagOptions.optional && tagOptions.optional.filetype) {
@@ -94,8 +97,12 @@ export class GelbooruScraper implements ScraperProtocol {
                         return filetype.includes(ext)
                     }
                 })
+            } else {
+                return json.post
             }
         })()
+
+        console.log(posts)
 
         return posts
     }
