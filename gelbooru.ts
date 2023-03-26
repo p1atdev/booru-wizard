@@ -72,7 +72,7 @@ export class GelbooruScraper implements ScraperProtocol {
 
         const json = await res.json()
 
-        console.log(json)
+        // console.log(json)
 
         const posts = (() => {
             // filter with filetype
@@ -102,7 +102,7 @@ export class GelbooruScraper implements ScraperProtocol {
             }
         })()
 
-        console.log(posts)
+        // console.log(posts)
 
         return posts
     }
