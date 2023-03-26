@@ -32,7 +32,7 @@ deno task build
 > ./booru --help
 
   Usage:   booru-wizard
-  Version: 0.1.2
+  Version: 0.2.0
 
   Description:
 
@@ -58,22 +58,28 @@ deno task build
   Options:
 
     -h, --help                  - Show this help.
-    --host          <host>      - Host URL.                                                (Default: "https://danbooru.donmai.us")
-    -o, --output    <path>      - Output path.                                             (Default: "./output")
-    -b, --batch     <number>    - The number of images to download at once. Default is 4.  (Default: 4)
-    -l, --limit     <number>    - The number of images to download. Default is 200         (Default: 200)
+
+    --host          <host>      - Host URL.                                                              (Default: "https://danbooru.donmai.us")
+    -o, --output    <path>      - Output path.                                                           (Default: "./output")
+    -b, --batch     <number>    - The number of images to download at once. Default is 4.                (Default: 4)
+
+    -l, --limit     <number>    - The number of images to download. Default is 200                       (Default: 200)
+
     -s, --score     <score>     - Filtering with score of images. e.g. "100", ">20", "<10", "100...200"
-    -r, --rating    <rating>    - Rating of images. general/safe/questionable/explicit     (Default: [ "general", "safe", "questionable", "explicit" ])      
-    -f, --filetype  <filetype>  - Filetype to download. e.g. png/jpg/webp/mp4... etc       (Default: [ "jpg", "png", "webp" ])
-    -t, --tags      [tags]      - Save tags.                                               (Default: false)
-    --character     [boolean]   - Include character tags.                                  (Default: true, Depends: --tags)
-    --copyright     [boolean]   - Include copyright tags.                                  (Default: true, Depends: --tags)
-    --meta          [boolean]   - Include meta tags.                                       (Default: false, Depends: --tags)
-    --artist        [boolean]   - Include artist tags.                                     (Default: true, Depends: --tags)
-    --additional    <tags>      - Additional tags to include.                              (Depends: --tags)
-    --exclude       <tags>      - Tags to exclude.                                         (Depends: --tags)
-    --user          <user>      - Username to auth                                         (Depends: --apiKey)
-    --apiKey        <apiKey>    - API key to auth                                          (Depends: --user)
+
+    -r, --rating    <rating>    - Rating of images. general/safe/questionable/explicit
+
+    -f, --filetype  <filetype>  - Filetype to download. e.g. png/jpg/webp/mp4... etc                     (Default: [ "jpg", "png", "webp" ])
+    --no-filetype   [boolean]   - Not to use filetype filtering                                          (Default: false)
+    -t, --tags      [tags]      - Save tags.                                                             (Default: false)
+    --character     [boolean]   - Include character tags.                                                (Default: true, Depends: --tags)
+    --copyright     [boolean]   - Include copyright tags.                                                (Default: true, Depends: --tags)
+    --meta          [boolean]   - Include meta tags.                                                     (Default: false, Depends: --tags)
+    --artist        [boolean]   - Include artist tags.                                                   (Default: true, Depends: --tags)
+    --additional    <tags>      - Additional tags to include.                                            (Depends: --tags)
+    --exclude       <tags>      - Tags to exclude.                                                       (Depends: --tags)
+    --user          <user>      - Username to auth                                                       (Depends: --apiKey)
+    --apiKey        <apiKey>    - API key to auth                                                        (Depends: --user)
 ```
 
 ### Examples
@@ -108,14 +114,8 @@ deno task build
 ./booru download hatsune_miku --rating general --rating safe -o ./sfw_miku
 ```
 
-- Specify the host url
-
-```bash
-./booru download --host https://testbooru.donmai.us -o ./test
-```
-
 - Gelbooru
 
 ```bash
-./booru download --host "https://gelbooru.com" --no-filetype -l 100 -t -o ./gel --batch 100
+./booru download hatsune_miku --host "https://gelbooru.com" -l 100 -t -o ./gel --batch 100
 ```
