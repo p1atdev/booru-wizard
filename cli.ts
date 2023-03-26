@@ -6,7 +6,7 @@ import { Rating, Filetype, Post } from "./types/mod.ts"
 
 await new Command()
     .name("booru-wizard")
-    .version("0.1.2")
+    .version("0.2.0")
     .description("Booru Images Downloader")
     .globalOption("--debug", "Debug mode", {
         hidden: true,

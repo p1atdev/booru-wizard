@@ -115,18 +115,21 @@ export const saveTags = async (images: Post[], outputPath: string, options: Save
             tags.push(...options.additional.split(",").map((tag) => tag.trim().replaceAll(" ", "_")))
         }
 
-        if (options.character) {
+        if (options.character && image.tag_string_character) {
             tags.push(image.tag_string_character)
         }
-        if (options.copyright) {
+        if (options.copyright && image.tag_string_copyright) {
             tags.push(image.tag_string_copyright)
         }
-        tags.push(image.tag_string_general)
-        if (options.meta) {
+        if (image.tag_string_general) {
+            tags.push(image.tag_string_general)
+        } else if (image.tags) {
+            tags.push(image.tags)
+        }
+        if (options.meta && image.tag_string_meta) {
             tags.push(image.tag_string_meta)
         }
-        if (options.artist) {
-            // tags.push(`by_${image.tag_string_artist}`)
+        if (options.artist && image.tag_string_artist) {
             tags.push(image.tag_string_artist)
         }
 

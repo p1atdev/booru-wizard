@@ -1,3 +1,6 @@
+import { DanbooruScraper } from "./danbooru.ts"
+import { GelbooruScraper } from "./gelbooru.ts"
+import { log } from "./log.ts"
 import { CommonSearchParameters } from "./types/commonSearchParameters.ts"
 import { SearchTagOptions } from "./types/mod.ts"
 import { Post } from "./types/post.ts"
@@ -12,123 +15,75 @@ export interface BooruClientConfig {
     auth?: Auth
 }
 
-const hosts = [
+export interface BooruHost {
+    origin: string
+    postsPath: string
+    apiType: "danbooru" | "gelbooru"
+}
+
+const BOORU_HOSTS: BooruHost[] = [
     {
-        host: "danbooru.donmai.us",
-        posts: "/posts.json",
+        origin: "https://danbooru.donmai.us",
+        postsPath: "/posts.json",
         apiType: "danbooru",
     },
     {
-        host: "konachan.com",
-        posts: "/post.json",
+        origin: "https://konachan.com",
+        postsPath: "/post.json",
         apiType: "danbooru",
     },
     {
-        host: "behoimi.org",
-        posts: "/post/index.json",
+        origin: "http://behoimi.org",
+        postsPath: "/post/index.json",
         apiType: "danbooru",
     },
     {
-        host: "gelbooru.com",
-        posts: "/index.php",
+        origin: "https://gelbooru.com",
+        postsPath: "/index.php",
         apiType: "gelbooru",
     },
-] satisfies {
-    host: string
-    posts: string
-    apiType: "danbooru" | "gelbooru"
-}[]
+]
 
-const pageLimit = 100
+const DEFAULT_CONFIG = {
+    host: "https://danbooru.donmai.us",
+}
+
+const PAGE_LIMIT = 100
+
+export interface ScraperProtocol {
+    config: BooruClientConfig
+    host: BooruHost
+    getPosts(tagOptions: SearchTagOptions, params: CommonSearchParameters): Promise<Post[]>
+}
+
+const createScraper = (config?: BooruClientConfig): ScraperProtocol => {
+    const host = config?.host ?? "https://danbooru.donmai.us"
+    const origin = new URL(host).origin
+
+    const hostConfig = BOORU_HOSTS.find((index) => index.origin === origin)
+
+    switch (hostConfig?.apiType) {
+        case "danbooru": {
+            return new DanbooruScraper(config ?? DEFAULT_CONFIG, hostConfig)
+        }
+        case "gelbooru": {
+            return new GelbooruScraper(config ?? DEFAULT_CONFIG, hostConfig)
+        }
+        default: {
+            log.error(`Unknown host: ${host}`)
+            throw new Error(`Unknown host: ${host}`)
+        }
+    }
+}
 
 export class BooruClient {
-    private readonly host: string = "https://danbooru.donmai.us"
-    private readonly auth?: Auth
+    readonly scraper: ScraperProtocol
 
     constructor(config?: BooruClientConfig) {
-        if (config?.host) {
-            this.host = config.host
-            this.auth = config.auth
-        }
+        this.scraper = createScraper(config)
     }
 
     async getPosts(tagOptions: SearchTagOptions, params: CommonSearchParameters): Promise<Post[]> {
-        const host = hosts.find((index) => index.host === new URL(this.host).hostname) ?? {
-            host: this.host,
-            posts: "/posts.json",
-            apiType: "danbooru",
-        }
-        const url = new URL(host.posts, this.host)
-        if (host.apiType === "gelbooru") {
-            url.searchParams.set("page", "dapi")
-            url.searchParams.set("s", "post")
-            url.searchParams.set("q", "index")
-            url.searchParams.set("json", "1")
-        }
-
-        // console.log(url)
-
-        const tags: string[] = []
-
-        if (tagOptions.general) {
-            tags.push(tagOptions.general)
-        }
-
-        if (tagOptions.optional) {
-            const optionals = Object.entries(tagOptions.optional)
-                .filter(([_key, value]) => value !== undefined)
-                .map(([key, value]) => {
-                    if (Array.isArray(value)) {
-                        return `${key}:${value.join(",")}}`
-                    } else {
-                        return `${key}:${value}`
-                    }
-                })
-            tags.push(...optionals)
-        }
-
-        url.searchParams.set("tags", tags.join(" "))
-
-        Object.entries(params).forEach(([key, value]) => {
-            if (value !== undefined) {
-                if (key === "page" && host.apiType === "gelbooru") {
-                    url.searchParams.set("pid", ((parseInt(value.toString()) - 1) * pageLimit).toString())
-                    return
-                }
-                url.searchParams.set(key, value.toString())
-            }
-        })
-
-        const headers = new Headers()
-
-        if (this.auth) {
-            const basic = `${this.auth.user}:${this.auth.apiKey}`
-            const encoded = btoa(basic)
-            headers.set("Authorization", `Basic ${encoded}`)
-        }
-
-        headers.set("Accept", "application/json")
-
-        // console.log(url.toString())
-
-        const res = await fetch(url, {
-            headers,
-        })
-
-        // console.log(res)
-
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`)
-        }
-
-        const json = await res.json()
-
-        // console.log(json)
-
-        if (host.apiType === "gelbooru") {
-            return json.post
-        }
-
-        return json
+        return await this.scraper.getPosts(tagOptions, params)
     }
 }
