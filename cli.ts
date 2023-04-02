@@ -1,12 +1,12 @@
 import { BooruClient } from "./client.ts"
-import { Command, tty, colors } from "./deps.ts"
+import { Command, tty } from "./deps.ts"
 import { log } from "./log.ts"
-import { getImageData, downloadImages, saveTags, SaveTagsOptions, SearchOptions } from "./main.ts"
-import { Rating, Filetype, Post } from "./types/mod.ts"
+import { getImageData, downloadImages, saveTags, SaveTagsOptions } from "./main.ts"
+import { Filetype, Post } from "./types/mod.ts"
 
 await new Command()
     .name("booru-wizard")
-    .version("0.2.1")
+    .version("0.2.2")
     .description("Booru Images Downloader")
     .globalOption("--debug", "Debug mode", {
         hidden: true,
@@ -24,10 +24,6 @@ await new Command()
     })
     .option("-l, --limit <number:number>", "The number of images to download. Default is 200", {
         default: 200,
-    })
-    .option("-s, --score <score:string>", 'Filtering with score of images. e.g. "100", ">20", "<10", "100...200"')
-    .option("-r, --rating <rating:string>", "Rating of images. general/safe/questionable/explicit", {
-        collect: true,
     })
     .option("-f, --filetype <filetype:string>", "Filetype to download. e.g. png/jpg/webp/mp4... etc ", {
         default: ["jpg", "png", "webp"],
@@ -55,6 +51,10 @@ await new Command()
         default: true,
         depends: ["tags"],
     })
+    .option("--rating [boolean:boolean]", "Include rating tags. (sensitive, nsfw...)", {
+        default: true,
+        depends: ["tags"],
+    })
     .option("--additional <tags:string>", "Additional tags to include.", {
         depends: ["tags"],
     })
@@ -74,7 +74,6 @@ await new Command()
                 host,
                 output,
                 limit,
-                score,
                 rating,
                 filetype,
                 noFiletype,
@@ -99,6 +98,8 @@ await new Command()
             if (tags) {
                 log.info("Save tags:", tags)
                 log.info("Character:", character, "Artist:", artist, "Meta:", meta, "Copyright:", copyright)
+                log.info("Rating:", rating === true)
+
                 if (additional) {
                     log.info(
                         "Additional tags:",
@@ -111,12 +112,6 @@ await new Command()
                         exclude.split(",").map((tag) => tag.trim())
                     )
                 }
-            }
-            if (score) {
-                log.info("Score:", score)
-            }
-            if (rating) {
-                log.info("Rating:", rating)
             }
             if (filetype) {
                 log.info("Filetype:", filetype)
@@ -141,8 +136,6 @@ await new Command()
                 tags: {
                     general: query,
                     optional: {
-                        score,
-                        rating: rating ? rating.map((r) => r as Rating) : undefined,
                         filetype: noFiletype ? undefined : filetype ? filetype.map((f) => f as Filetype) : undefined,
                     },
                 },
@@ -164,6 +157,7 @@ await new Command()
                     artist,
                     meta,
                     copyright,
+                    rating,
                     additional,
                     exclude,
                 }

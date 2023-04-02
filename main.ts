@@ -3,6 +3,7 @@ import { SearchTagOptions, Post } from "./types/mod.ts"
 import { downloadAndSaveImage, fixTagFormat, saveTxtFile } from "./utils.ts"
 import { tty, colors } from "./deps.ts"
 import { log } from "./log.ts"
+import { RatingAlias } from "./types/common.ts"
 
 export interface SearchOptions {
     tags: SearchTagOptions
@@ -14,6 +15,7 @@ export interface SaveTagsOptions {
     copyright: boolean
     artist: boolean
     meta: boolean
+    rating: boolean
     additional?: string
     exclude?: string
 }
@@ -113,6 +115,25 @@ export const saveTags = async (images: Post[], outputPath: string, options: Save
 
         if (options.additional) {
             tags.push(...options.additional.split(",").map((tag) => tag.trim().replaceAll(" ", "_")))
+        }
+
+        if (options.rating && image.rating) {
+            const rating = RatingAlias[image.rating]
+            switch (rating) {
+                case "explicit": {
+                    tags.push("nsfw", rating)
+                    break
+                }
+                case "sensitive":
+                case "questionable":
+                case "general": {
+                    tags.push(rating)
+                    break
+                }
+                default: {
+                    break
+                }
+            }
         }
 
         if (options.character && image.tag_string_character) {

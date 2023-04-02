@@ -28,63 +28,6 @@ Deno.test("get post with limit", async () => {
     }
 })
 
-Deno.test("get post with rating", async () => {
-    const client = new BooruClient()
-
-    const cases = [
-        {
-            value: "general",
-            expect: "g",
-        },
-        {
-            value: "safe",
-            expect: "s",
-        },
-        {
-            value: "questionable",
-            expect: "q",
-        },
-        {
-            value: "explicit",
-            expect: "e",
-        },
-        {
-            value: "g",
-            expect: "g",
-        },
-        {
-            value: "s",
-            expect: "s",
-        },
-        {
-            value: "q",
-            expect: "q",
-        },
-        {
-            value: "e",
-            expect: "e",
-        },
-    ] satisfies {
-        value: Rating
-        expect: string
-    }[]
-
-    for await (const rating of cases) {
-        const posts = await client.getPosts(
-            {
-                optional: {
-                    rating: rating.value,
-                },
-            },
-            {
-                limit: 10,
-            }
-        )
-        assertExists(posts)
-        posts.forEach((post) => assertEquals(post.rating, rating.expect))
-    }
-})
-
 Deno.test("get post with score", async () => {
     const client = new BooruClient()
 
@@ -124,9 +67,7 @@ Deno.test("get post with score", async () => {
     for await (const score of cases) {
         const posts = await client.getPosts(
             {
-                optional: {
-                    score: score.value,
-                },
+                general: score.value,
             },
             {
                 limit: 10,

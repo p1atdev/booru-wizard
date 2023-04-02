@@ -5,8 +5,8 @@ import { Rating } from "./common.ts"
 export interface SearchTagOptions {
     general?: string
     optional?: {
-        score?: string
-        rating?: Rating | Rating[]
+        // score?: string
+        // rating?: Rating | Rating[]
         filetype?: Filetype | Filetype[]
     }
 }
